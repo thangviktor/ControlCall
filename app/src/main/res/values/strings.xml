@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Control Call</string>
+    <string name="total_call_time_in_this_month">Tổng thời lượng gọi tháng</string>
+    <string name="sim_a">Sim A</string>
+    <string name="sim_b">Sim B</string>
+    <string name="incoming">Gọi đến: giây</string>
+    <string name="outgoing">Gọi đi: giây</string>
+
+</resources>
