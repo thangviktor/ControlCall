@@ -2,12 +2,15 @@ package com.j.controlcall
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.provider.CallLog
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +30,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spannableUtility: SpannableUtility
     private lateinit var pref: SharedPreferences
 
-    private lateinit var currentMonth: String
+    private val sdf = SimpleDateFormat("dd/MM/yyyy")
+    private lateinit var calendar: Calendar
+    private var startDate = 0L
     private lateinit var simAId: String
     private lateinit var simBId: String
     private lateinit var simA: Sim
@@ -38,21 +43,34 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         spannableUtility = SpannableUtility(this)
 
-        val currentDate = Calendar.getInstance().time
-        currentMonth = SimpleDateFormat("MM/yyyy").format(currentDate)
-        tvTitle?.text = spannableUtility.text(SpannableUtility.INDEX,
-            R.string.total_call_time_in_this_month, currentMonth,
-            colorInt = ContextCompat.getColor(this, R.color.blue))
-
         pref = getSharedPreferences("CallLog", MODE_PRIVATE)
-
         simAId = pref.getString("SimA", "")!!
         simBId = pref.getString("SimB", "")!!
+        startDate = pref.getLong("Date", 0L)
+
+        calendar = Calendar.getInstance()
+        if (startDate == 0L) {
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMinimum(Calendar.DAY_OF_MONTH))
+            startDate = calendar.timeInMillis
+        }
+        else
+            calendar.timeInMillis = startDate
+
+        tvStartTime?.text = spannableUtility.text(SpannableUtility.INDEX,
+            R.string.start_from_, sdf.format(startDate),
+            colorInt = ContextCompat.getColor(this, R.color.blue))
+        tvRemindedTime?.text = "200 phút"
+        tvRemindedSpaceTime?.text = "20 phút"
+
         simA = Sim()
         simB = Sim()
 
+        tvStartTime?.setOnClickListener { setStartTime() }
+    }
+
+    override fun onResume() {
+        super.onResume()
         checkAndRequestPermissions()
-        getCallDetails()
     }
 
     override fun onRequestPermissionsResult(
@@ -82,10 +100,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //-------------------------------------- Event Functions ---------------------------------------
+
+    private fun setStartTime() {
+        val datePickerDialog = DatePickerDialog(this,
+            { _, year, month, dayOfMonth ->
+                calendar.set(year, month, dayOfMonth)
+                startDate = calendar.timeInMillis
+                pref.edit().putLong("Date", startDate).apply()
+
+                tvStartTime?.text = spannableUtility.text(SpannableUtility.INDEX,
+                    R.string.start_from_, sdf.format(startDate),
+                    colorInt = ContextCompat.getColor(this, R.color.blue))
+                getCallDetails()
+            }, calendar[Calendar.YEAR], calendar[Calendar.MONTH], calendar[Calendar.DATE])
+            .show()
+    }
+
     private fun getCallDetails() {
+        simA.incoming = 0
+        simA.outgoing = 0
+        simB.incoming = 0
+        simB.outgoing = 0
 
         val managedCursor = managedQuery(CallLog.Calls.CONTENT_URI, null, null, null, null)
-        val number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER)
         val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
         val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
         val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
@@ -95,10 +133,8 @@ class MainActivity : AppCompatActivity() {
         var hasSimB = false
 
         while (managedCursor.moveToNext()) {
-            val phNumber = managedCursor.getString(number)
             val callType = managedCursor.getString(type)
-            val callDate = managedCursor.getString(date)
-            val callMonth = SimpleDateFormat("MM/yyyy").format(callDate.toLong())
+            val callDate = managedCursor.getString(date).toLong()
             val callDuration = managedCursor.getString(duration)
             val callPhoneAccountId = managedCursor.getString(phoneAccountId)
             var dir: String? = null
@@ -109,7 +145,7 @@ class MainActivity : AppCompatActivity() {
             if (callPhoneAccountId == simAId)
                 hasSimB = true
 
-            if (callMonth != currentMonth)
+            if (callDate < startDate)
                 continue
 
             if (simAId.isEmpty()) {
@@ -139,17 +175,24 @@ class MainActivity : AppCompatActivity() {
         }
         managedCursor.close()
 
-        tvIncomingA?.text = spannableUtility.text(SpannableUtility.COLON, R.string.incoming, simA.incoming.toString())
-        tvOutgoingA?.text = spannableUtility.text(SpannableUtility.COLON, R.string.outgoing, simA.outgoing.toString())
-        tvIncomingB?.text = spannableUtility.text(SpannableUtility.COLON, R.string.incoming, simB.incoming.toString())
-        tvOutgoingB?.text = spannableUtility.text(SpannableUtility.COLON, R.string.outgoing, simB.outgoing.toString())
+        setCallTimeView(tvIncomingA, simA.incoming)
+        setCallTimeView(tvOutgoingA, simA.outgoing)
+        setCallTimeView(tvIncomingB, simB.incoming)
+        setCallTimeView(tvOutgoingB, simB.outgoing)
+    }
+
+    private fun setCallTimeView(textView: TextView?, time: Long) {
+        textView?.text = if (time % 60 == 0L)
+            " ${time / 60} phút"
+        else
+            " ${time / 60} phút ${time % 60} giây"
     }
 
     private fun checkAndRequestPermissions() {
         when (PackageManager.PERMISSION_GRANTED) {
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG
             ) -> {
-                Log.d("PermissionLog", "PERMISSION_GRANTED")
+                getCallDetails()
             }
             else -> {
                 Log.d("PermissionLog", "else")

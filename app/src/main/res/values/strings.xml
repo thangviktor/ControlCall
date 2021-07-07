@@ -1,9 +1,15 @@
 <resources>
     <string name="app_name">Control Call</string>
-    <string name="total_call_time_in_this_month">Tổng thời lượng gọi tháng</string>
+    <string name="total_call_time">Tổng thời lượng gọi</string>
+    <string name="start_from_">Bắt đầu từ :</string>
     <string name="sim_a">Sim A</string>
     <string name="sim_b">Sim B</string>
-    <string name="incoming">Gọi đến: giây</string>
-    <string name="outgoing">Gọi đi: giây</string>
+    <string name="incoming">Gọi đến:</string>
+    <string name="outgoing">Gọi đi:</string>
+
+    <string name="remind_after_">Thông báo khi thời lượng\ngọi đi lớn hơn</string>
+    <string name="remind_every_">Thông báo sau mỗi </string>
+
+    <string name="zero_min">0 phút</string>
 
 </resources>
