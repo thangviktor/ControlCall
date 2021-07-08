@@ -41,7 +41,7 @@
                 android:id="@+id/tvSimA"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/margin_component_large"
+                android:layout_marginTop="@dimen/margin_component_big"
                 android:text="@string/sim_a"
                 android:textStyle="bold"
                 android:textSize="@dimen/text_size_super_large"
@@ -95,7 +95,7 @@
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:layout_below="@id/tvOutgoingA"
-                android:layout_marginTop="@dimen/margin_component_large"
+                android:layout_marginTop="@dimen/margin_component_big"
                 android:text="@string/sim_b"
                 android:textStyle="bold"
                 android:textSize="@dimen/text_size_super_large"
@@ -145,22 +145,27 @@
                 android:textColor="@color/black"/>
         </RelativeLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="@dimen/margin_component_bigger"
+            android:background="@color/gray_trans"/>
+
         <TextView
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:layout_marginTop="@dimen/margin_component_large"
+            android:layout_marginTop="@dimen/margin_component_big"
             android:gravity="center"
-            android:text="@string/remind_after_"
+            android:text="@string/remind_after_greate_than"
             android:textSize="@dimen/text_size_large"
-            android:textColor="@color/blue"/>
+            android:textColor="@color/black"/>
 
         <TextView
             android:id="@+id/tvRemindedTime"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:padding="@dimen/padding_component_small"
-            android:background="@drawable/bg_corner_6"
-            android:backgroundTint="@color/silver"
+            android:background="@drawable/bg_time"
             android:layout_marginTop="@dimen/margin_component_small"
             android:gravity="center"
             android:text="@string/zero_min"
@@ -173,17 +178,17 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginTop="@dimen/margin_component_big"
-            android:text="@string/remind_every_"
+            android:gravity="center"
+            android:text="@string/remind_after_increase"
             android:textSize="@dimen/text_size_large"
-            android:textColor="@color/blue"/>
+            android:textColor="@color/black"/>
 
         <TextView
             android:id="@+id/tvRemindedSpaceTime"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:padding="@dimen/padding_component_small"
-            android:background="@drawable/bg_corner_6"
-            android:backgroundTint="@color/silver"
+            android:background="@drawable/bg_time"
             android:layout_marginTop="@dimen/margin_component_small"
             android:gravity="center"
             android:text="@string/zero_min"

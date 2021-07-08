@@ -7,8 +7,8 @@
     <string name="incoming">Gọi đến:</string>
     <string name="outgoing">Gọi đi:</string>
 
-    <string name="remind_after_">Thông báo khi thời lượng\ngọi đi lớn hơn</string>
-    <string name="remind_every_">Thông báo sau mỗi </string>
+    <string name="remind_after_greate_than">Thông báo khi thời lượng\ngọi đi lớn hơn</string>
+    <string name="remind_after_increase">Thông báo mỗi khi\nthời lượng tăng thêm</string>
 
     <string name="zero_min">0 phút</string>
 

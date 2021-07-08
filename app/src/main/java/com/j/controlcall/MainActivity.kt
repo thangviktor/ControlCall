@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.provider.CallLog
@@ -66,6 +65,14 @@ class MainActivity : AppCompatActivity() {
         simB = Sim()
 
         tvStartTime?.setOnClickListener { setStartTime() }
+        tvRemindedTime?.setOnClickListener { setTimesList() }
+    }
+
+    private fun setTimesList() {
+        val times = arrayListOf(10, 20, 40, 60, 80, 100, 150, 200, 250, 280)
+        val dialog = TimeDialog()
+            .setTimesList(times)
+            .show(supportFragmentManager, "")
     }
 
     override fun onResume() {
@@ -103,7 +110,7 @@ class MainActivity : AppCompatActivity() {
     //-------------------------------------- Event Functions ---------------------------------------
 
     private fun setStartTime() {
-        val datePickerDialog = DatePickerDialog(this,
+        DatePickerDialog(this,
             { _, year, month, dayOfMonth ->
                 calendar.set(year, month, dayOfMonth)
                 startDate = calendar.timeInMillis
@@ -123,22 +130,24 @@ class MainActivity : AppCompatActivity() {
         simB.incoming = 0
         simB.outgoing = 0
 
-        val managedCursor = managedQuery(CallLog.Calls.CONTENT_URI, null, null, null, null)
-        val type = managedCursor.getColumnIndex(CallLog.Calls.TYPE)
-        val date = managedCursor.getColumnIndex(CallLog.Calls.DATE)
-        val duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION)
-        val phoneAccountId = managedCursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
+        val query = contentResolver.query(CallLog.Calls.CONTENT_URI, null, null, null, null)
+        val type = query?.getColumnIndex(CallLog.Calls.TYPE)
+        val date = query?.getColumnIndex(CallLog.Calls.DATE)
+        val duration = query?.getColumnIndex(CallLog.Calls.DURATION)
+        val phoneAccountId = query?.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
 
         var hasSimA = false
         var hasSimB = false
 
-        while (managedCursor.moveToNext()) {
-            val callType = managedCursor.getString(type)
-            val callDate = managedCursor.getString(date).toLong()
-            val callDuration = managedCursor.getString(duration)
-            val callPhoneAccountId = managedCursor.getString(phoneAccountId)
-            var dir: String? = null
-            val dircode = callType.toInt()
+        if (query == null)
+            return
+
+        while (query.moveToNext()) {
+            val callType = query.getString(type?:0)
+            val callDate = query.getString(date?:0).toLong()
+            val callDuration = query.getString(duration?:0)
+            val callPhoneAccountId = query.getString(phoneAccountId?:0)
+            val dircode = callType?.toInt()
 
             if (callPhoneAccountId == simAId)
                 hasSimA = true
@@ -173,7 +182,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        managedCursor.close()
+        query.close()
 
         setCallTimeView(tvIncomingA, simA.incoming)
         setCallTimeView(tvOutgoingA, simA.outgoing)

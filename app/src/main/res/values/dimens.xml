@@ -17,6 +17,7 @@
     <dimen name="margin_component_small">8dp</dimen>
     <dimen name="margin_component">16dp</dimen>
     <dimen name="margin_component_big">24dp</dimen>
+    <dimen name="margin_component_bigger">36dp</dimen>
     <dimen name="margin_component_large">48dp</dimen>
 
     <dimen name="height_item">36dp</dimen>
