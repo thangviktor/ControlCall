@@ -1,9 +1,9 @@
 package com.j.controlcall
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +33,10 @@ class TimeDialog : DialogFragment() {
 
         adapter = TimeAdapter(requireContext(), times)
         lvTime?.adapter = adapter
+
+//        val c: View? = lvTime?.getChildAt(0)
+//        val scrolly: Int = -c!!.top + lvTime.firstVisiblePosition * c.height
+//        Log.d("DialogLog", "scrolly = $scrolly")
     }
 
     override fun onResume() {

@@ -9,7 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#0080EF</color>
     <color name="silver">#F5F5F5</color>
-    <color name="gray">#80808080</color>
+    <color name="gray">#808080</color>
 
     <color name="gray_trans">#80808080</color>
+    <color name="white_trans">#80FFFFFF</color>
 </resources>
