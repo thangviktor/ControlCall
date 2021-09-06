@@ -46,7 +46,9 @@ class TimeDialog : DialogFragment() {
 
     fun setTimesList(timesList: ArrayList<Int>): TimeDialog {
         times.clear()
+        times.add(0)
         times.addAll(timesList)
+        times.add(0)
         return this
     }
 }

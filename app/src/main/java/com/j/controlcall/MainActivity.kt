@@ -3,11 +3,13 @@ package com.j.controlcall
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.CallLog
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
@@ -65,14 +67,13 @@ class MainActivity : AppCompatActivity() {
         simB = Sim()
 
         tvStartTime?.setOnClickListener { setStartTime() }
-        tvRemindedTime?.setOnClickListener { setTimesList() }
-    }
-
-    private fun setTimesList() {
-        val times = arrayListOf(10, 20, 40, 60, 80, 100, 150, 200, 250, 280)
-        val dialog = TimeDialog()
-            .setTimesList(times)
-            .show(supportFragmentManager, "")
+        tvRemindedTime?.setOnClickListener { setTimesList(arrayListOf(0, 20, 50, 100, 150, 200, 250, 280)) }
+        tvRemindedSpaceTime?.setOnClickListener {
+            val times = arrayListOf<Int>()
+            for (spaceTime in 10..100 step 10)
+                times.add(spaceTime)
+            setTimesList(times)
+        }
     }
 
     override fun onResume() {
@@ -92,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                 if ((grantResults.isNotEmpty() &&
                             grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     getCallDetails()
+                    getTelephonyManager()
                 } else {
                     Log.d("PermissionLog", "granted == false")
                     Toast.makeText(this,
@@ -122,6 +124,22 @@ class MainActivity : AppCompatActivity() {
                 getCallDetails()
             }, calendar[Calendar.YEAR], calendar[Calendar.MONTH], calendar[Calendar.DATE])
             .show()
+    }
+
+    private fun setTimesList(times: ArrayList<Int>) {
+        val dialog = TimeDialog()
+            .setTimesList(times)
+            .show(supportFragmentManager, "")
+    }
+
+    //-------------------------------------- Class Functions ---------------------------------------
+
+    private fun getTelephonyManager() {
+        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+//        Log.d("PhoneLog", "imei = ${telephonyManager.imei} | ${telephonyManager.simCarrierIdName}")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            Log.d("PhoneLog", "deviceId = ${telephonyManager.meid} | ${telephonyManager.simCarrierIdName}")
+        }
     }
 
     private fun getCallDetails() {
@@ -198,15 +216,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAndRequestPermissions() {
-        when (PackageManager.PERMISSION_GRANTED) {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG
-            ) -> {
-                getCallDetails()
-            }
-            else -> {
-                Log.d("PermissionLog", "else")
-                requestPermissions(arrayOf(Manifest.permission.READ_CALL_LOG), REQUEST_CODE)
-            }
+        val permissions = arrayListOf(Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_PHONE_STATE)
+        val requiredPermission = arrayListOf<String>()
+        for (permission in permissions)
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED)
+                requiredPermission.add(permission)
+
+        if (!requiredPermission.contains(Manifest.permission.READ_CALL_LOG))
+            getCallDetails()
+        if (!requiredPermission.contains(Manifest.permission.READ_PHONE_STATE))
+            getTelephonyManager()
+
+        if (requiredPermission.isNotEmpty()) {
+            Log.d("PermissionLog", "else")
+            requestPermissions(requiredPermission.toTypedArray(), REQUEST_CODE)
         }
     }
 }

@@ -24,9 +24,12 @@ class TimeAdapter(private val context: Context, private val times: ArrayList<Int
 
     @SuppressLint("SetTextI18n")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_time, null)
+        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_time, parent, false)
 
-        view.tvTime?.text = "${times[position]} phút"
+        if (position == 0 || position == times.size-1)
+            view.tvTime?.text = "--"
+        else
+            view.tvTime?.text = "${times[position]} phút"
 
         return view
     }
